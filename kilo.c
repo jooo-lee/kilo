@@ -23,6 +23,12 @@ void enableRawMode() {
 	to the terminal, and discards any input that hasn't been read.
 	*/
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+
+	/* 
+	The terminal might still not echo even after the program exits.
+	If that is the case, try typing ^c and typing 'reset' and pressing enter.
+	We will fix this on the next step.
+	*/ 
 }
 
 int main() {
