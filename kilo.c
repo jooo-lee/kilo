@@ -1,13 +1,26 @@
 // Tutorial from https://viewsourcecode.org/snaptoken/kilo/
 
-#include <stdio.h>
+#include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
 
+// For storing user's original terminal attributes
+struct termios orig_termios;
+
+void disableRawMode() {
+	// Restore user's original terminal attributes
+	tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
+
 void enableRawMode() {
+	// Store original terminal attributes before we make changes
+	tcgetattr(STDIN_FILENO, &orig_termios);
+
+	// Call disableRawMode() automatically when program exits
+	atexit(disableRawMode);
+
 	// Read terminal attributes into termios struct
-	struct termios raw;
-	tcgetattr(STDIN_FILENO, &raw);
+	struct termios raw = orig_termios;
 
 	/* 
 	c_lflag is for "local flags" or "miscellaneous flags",
