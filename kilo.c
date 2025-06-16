@@ -4,7 +4,6 @@
 #include <termios.h>
 #include <unistd.h>
 
-// For storing user's original terminal attributes
 struct termios orig_termios;
 
 void disableRawMode() {
@@ -25,9 +24,12 @@ void enableRawMode() {
 	/* 
 	c_lflag is for "local flags" or "miscellaneous flags",
 	one of which is the bitflag ECHO. Here we are flipping bits
-	to turn off the ECHO feature.
+	to turn off the ECHO feature and turn off canonical mode.
+	Turning off canonical mode means we are reading input byte-by-byte
+	instead of line-by-line. Now the program will quit as soon as 'q'
+	is pressed.
 	*/ 
-	raw.c_lflag &= ~(ECHO);
+	raw.c_lflag &= ~(ECHO | ICANON);
 
 	/* 
 	Apply new terminal attributes to terminal.
@@ -36,12 +38,6 @@ void enableRawMode() {
 	to the terminal, and discards any input that hasn't been read.
 	*/
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
-
-	/* 
-	The terminal might still not echo even after the program exits.
-	If that is the case, try typing ^c and typing 'reset' and pressing enter.
-	We will fix this on the next step.
-	*/ 
 }
 
 int main() {
@@ -49,7 +45,7 @@ int main() {
 	
 	char c;
 
-	// Keep reading until end of file or 'q' is read
+	// Keep reading until end of file or 'q' is pressed
 	while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q');
 	return 0;
 }
