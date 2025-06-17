@@ -23,6 +23,10 @@ void enableRawMode() {
 	// Read terminal attributes into termios struct
 	struct termios raw = orig_termios;
 
+	/* c_iflag is for "input flags". We turn off the IXON feature
+	   to turn off the pausing and resuming feature of data transmission. */
+	raw.c_iflag &= ~(IXON);
+
 	/* c_lflag is for "local flags" or "miscellaneous flags",
 	   one of which is the bitflag ECHO. Here we are flipping bits
 	   to turn off the ECHO feature and turn off canonical mode.
