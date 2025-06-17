@@ -24,7 +24,8 @@ void enableRawMode() {
 	struct termios raw = orig_termios;
 
 	/* c_iflag is for "input flags". We turn off the IXON feature
-	   to turn off the pausing and resuming feature of data transmission. */
+	   to turn off the pausing and resuming of data transmission
+	   via Ctrl-S and Ctrl-Q. */
 	raw.c_iflag &= ~(IXON);
 
 	/* c_lflag is for "local flags" or "miscellaneous flags",
