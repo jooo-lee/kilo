@@ -28,8 +28,9 @@ void enableRawMode() {
 	   to turn off the ECHO feature and turn off canonical mode.
 	   Turning off canonical mode means we are reading input byte-by-byte
 	   instead of line-by-line. Now the program will quit as soon as 'q'
-	   is pressed. */ 
-	raw.c_lflag &= ~(ECHO | ICANON);
+	   is pressed. Turning off the ISIG feature turns off quitting via
+	   Ctrl-C and suspending via Ctrl-Z and Ctrl-Y. */ 
+	raw.c_lflag &= ~(ECHO | ICANON | ISIG);
 
 	/* Apply new terminal attributes to terminal.
 	   TCSAFLUSH specifies when to apply the change.
