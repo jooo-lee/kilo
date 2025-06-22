@@ -1,12 +1,19 @@
 // Tutorial from https://viewsourcecode.org/snaptoken/kilo/
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
 
 struct termios orig_termios;
+
+// Print error message and exit program with status of 1
+void die(const char *s) {
+	perror(s);
+	exit(1);
+}
 
 void disableRawMode() {
 	// Restore user's original terminal attributes
@@ -15,7 +22,7 @@ void disableRawMode() {
 
 void enableRawMode() {
 	// Store original terminal attributes before we make changes
-	tcgetattr(STDIN_FILENO, &orig_termios);
+	if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) die("tcgetattr");
 
 	// Call disableRawMode() automatically when program exits
 	atexit(disableRawMode);
@@ -35,7 +42,7 @@ void enableRawMode() {
 	raw.c_cc[VTIME] = 1;
 
 	// Apply new terminal attributes to terminal
-	tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
 }
 
 int main() {
@@ -46,7 +53,10 @@ int main() {
 		   simply keep printing out 0s. */
 		char c = '\0';
 
-		read(STDIN_FILENO, &c, 1);
+		/* In Cygwin, when read() times out it returns -1 with errno of EAGAIN
+		   instead of returning 0. So we don't treate EAGAIN as an error to make
+		   this work in Cygwin. */
+		if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) die("read");
 		/* Test whether a character is a control character. 
 		   Control characters are nonprintable characters that we don't
 		   want to print to the screen, e.g. ESC or TAB. */
