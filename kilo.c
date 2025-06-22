@@ -23,10 +23,12 @@ void enableRawMode() {
 	// Read terminal attributes into termios struct
 	struct termios raw = orig_termios;
 
-	// Modify flags to enable raw mode
-	raw.c_iflag &= ~(IXON | ICRNL);
+	// Disable flags to enable raw mode
+	raw.c_iflag &= ~(IXON | ICRNL | BRKINT | INPCK | ISTRIP);
 	raw.c_oflag &= ~(OPOST);
 	raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
+
+	raw.c_cflag |= (CS8);
 
 	// Apply new terminal attributes to terminal
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
