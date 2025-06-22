@@ -23,24 +23,11 @@ void enableRawMode() {
 	// Read terminal attributes into termios struct
 	struct termios raw = orig_termios;
 
-	/* c_iflag is for "input flags". We turn off the IXON feature
-	   to turn off the pausing and resuming of data transmission
-	   via Ctrl-S and Ctrl-Q. */
+	// Modify flags to enable raw mode
 	raw.c_iflag &= ~(IXON);
+	raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
 
-	/* c_lflag is for "local flags" or "miscellaneous flags",
-	   one of which is the bitflag ECHO. Here we are flipping bits
-	   to turn off the ECHO feature and turn off canonical mode.
-	   Turning off canonical mode means we are reading input byte-by-byte
-	   instead of line-by-line. Now the program will quit as soon as 'q'
-	   is pressed. Turning off the ISIG feature turns off quitting via
-	   Ctrl-C and suspending via Ctrl-Z and Ctrl-Y. */ 
-	raw.c_lflag &= ~(ECHO | ICANON | ISIG);
-
-	/* Apply new terminal attributes to terminal.
-	   TCSAFLUSH specifies when to apply the change.
-	   In this case, it waits for all pending output to be written 
-	   to the terminal, and discards any input that hasn't been read. */
+	// Apply new terminal attributes to terminal
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
