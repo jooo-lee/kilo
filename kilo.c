@@ -29,6 +29,10 @@ void enableRawMode() {
 	raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
 
 	raw.c_cflag |= (CS8);
+	
+	// Set 1/10 second timeout for read()
+	raw.c_cc[VMIN] = 0;
+	raw.c_cc[VTIME] = 1;
 
 	// Apply new terminal attributes to terminal
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
@@ -37,22 +41,27 @@ void enableRawMode() {
 int main() {
 	enableRawMode();
 
-	char c;
+	while (1) {
+		/* If we don't supply any input, the program will
+		   simply keep printing out 0s. */
+		char c = '\0';
 
-	// Keep reading until end of file or 'q' is pressed
-	while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
+		read(STDIN_FILENO, &c, 1);
 		/* Test whether a character is a control character. 
 		   Control characters are nonprintable characters that we don't
 		   want to print to the screen, e.g. ESC or TAB. */
 		if (iscntrl(c)) {
 			/* %d tells printf() to format the byte as a decimal 
-			number (its ASCII code). */
+			   number (its ASCII code). */
 			printf("%d\r\n", c);
 		} else {
 			/* %c tells printf() to write out the byte directly,
 			   as a character. */
 			printf("%d ('%c')\r\n", c, c);
 		}
+		
+		// Exit program
+		if (c == 'q') break;
 	}
 
 	return 0;
