@@ -25,6 +25,7 @@ void enableRawMode() {
 
 	// Modify flags to enable raw mode
 	raw.c_iflag &= ~(IXON | ICRNL);
+	raw.c_oflag &= ~(OPOST);
 	raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
 
 	// Apply new terminal attributes to terminal
@@ -44,11 +45,11 @@ int main() {
 		if (iscntrl(c)) {
 			/* %d tells printf() to format the byte as a decimal 
 			number (its ASCII code). */
-			printf("%d\n", c);
+			printf("%d\r\n", c);
 		} else {
 			/* %c tells printf() to write out the byte directly,
 			   as a character. */
-			printf("%d ('%c')\n", c, c);
+			printf("%d ('%c')\r\n", c, c);
 		}
 	}
 
