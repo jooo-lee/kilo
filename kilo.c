@@ -24,7 +24,7 @@ void enableRawMode() {
 	struct termios raw = orig_termios;
 
 	// Modify flags to enable raw mode
-	raw.c_iflag &= ~(IXON);
+	raw.c_iflag &= ~(IXON | ICRNL);
 	raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
 
 	// Apply new terminal attributes to terminal
