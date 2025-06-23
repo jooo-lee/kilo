@@ -9,6 +9,13 @@
 #include <termios.h>
 #include <unistd.h>
 
+/*** defines ***/
+
+/* Bitwise-AND character with the value 00011111 (0x1f).
+   This sets the upper 3 bits of the character to 0, which mirrors
+   what the Ctrl key does in the terminal. */
+#define CTRL_KEY(k) ((k) & 0x1f)
+
 /*** data ***/
 
 struct termios orig_termios;
@@ -79,7 +86,7 @@ int main() {
 		}
 		
 		// Exit program
-		if (c == 'q') break;
+		if (c == CTRL_KEY('q')) break;
 	}
 
 	return 0;
