@@ -1,5 +1,7 @@
 // Tutorial from https://viewsourcecode.org/snaptoken/kilo/
 
+/*** includes ***/
+
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
@@ -7,7 +9,11 @@
 #include <termios.h>
 #include <unistd.h>
 
+/*** data ***/
+
 struct termios orig_termios;
+
+/*** terminal ***/
 
 // Print error message and exit program with status of 1
 void die(const char *s) {
@@ -44,6 +50,8 @@ void enableRawMode() {
 	// Apply new terminal attributes to terminal
 	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
 }
+
+/*** init ***/ 
 
 int main() {
 	enableRawMode();
