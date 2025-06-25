@@ -74,10 +74,23 @@ char editorReadKey() {
 
 /*** output ***/
 
+void editorDrawRows() {
+	// Draw tildes at beginning of lines, like in Vim
+	int y;
+	for (y = 0; y < 24; y++) {
+		write(STDOUT_FILENO, "~\r\n", 3);
+	}
+}
+
 void editorRefreshScreen() {
 	// Clear user's screen using escape sequence
 	write(STDOUT_FILENO, "\x1b[2J", 4);
 	
+	// Move cursor to second row so that tildes begin on second row
+	write(STDOUT_FILENO, "\x1b[2H", 4);
+
+	editorDrawRows();
+
 	// Reposition cursor at top-left corner
 	write(STDOUT_FILENO, "\x1b[H", 3);
 }
