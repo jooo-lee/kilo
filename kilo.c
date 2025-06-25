@@ -73,6 +73,9 @@ char editorReadKey() {
 void editorRefreshScreen() {
 	// Clear user's screen using escape sequence
 	write(STDOUT_FILENO, "\x1b[2J", 4);
+	
+	// Reposition cursor at top-left corner
+	write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
 /*** input ***/
