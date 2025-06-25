@@ -28,8 +28,8 @@ void die(const char *s) {
 	exit(1);
 }
 
+// Restore user's original terminal attributes
 void disableRawMode() {
-	// Restore user's original terminal attributes
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
 }
 
@@ -58,35 +58,36 @@ void enableRawMode() {
 	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
 }
 
+// Wait for one keypress and return it 
+char editorReadKey() {
+	int nread;
+	char c;
+	while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
+		if (nread == -1 && errno != EAGAIN) die("read");
+	}
+	return c;
+}
+
+/*** input ***/
+
+// Waits for a keypress and handles it
+void editorProcessKeypress() {
+	char c = editorReadKey();
+
+	switch (c) {
+		case CTRL_KEY('q'):
+			exit(0);
+			break;
+	}
+}
+
 /*** init ***/ 
 
 int main() {
 	enableRawMode();
 
 	while (1) {
-		/* If we don't supply any input, the program will
-		   simply keep printing out 0s. */
-		char c = '\0';
-
-		/* In Cygwin, when read() times out it returns -1 with errno of EAGAIN
-		   instead of returning 0. So we don't treate EAGAIN as an error to make
-		   this work in Cygwin. */
-		if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) die("read");
-		/* Test whether a character is a control character. 
-		   Control characters are nonprintable characters that we don't
-		   want to print to the screen, e.g. ESC or TAB. */
-		if (iscntrl(c)) {
-			/* %d tells printf() to format the byte as a decimal 
-			   number (its ASCII code). */
-			printf("%d\r\n", c);
-		} else {
-			/* %c tells printf() to write out the byte directly,
-			   as a character. */
-			printf("%d ('%c')\r\n", c, c);
-		}
-		
-		// Exit program
-		if (c == CTRL_KEY('q')) break;
+		editorProcessKeypress();
 	}
 
 	return 0;
