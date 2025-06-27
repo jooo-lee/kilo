@@ -18,7 +18,12 @@
 
 /*** data ***/
 
-struct termios orig_termios;
+struct editorConfig {
+	struct termios orig_termios;
+};
+
+// Global struct that stores editor state
+struct editorConfig E;
 
 /*** terminal ***/
 
@@ -34,18 +39,18 @@ void die(const char *s) {
 
 // Restore user's original terminal attributes
 void disableRawMode() {
-	tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1) die("tcsetattr");
 }
 
 void enableRawMode() {
 	// Store original terminal attributes before we make changes
-	if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) die("tcgetattr");
+	if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) die("tcgetattr");
 
 	// Call disableRawMode() automatically when program exits
 	atexit(disableRawMode);
 
 	// Read terminal attributes into termios struct
-	struct termios raw = orig_termios;
+	struct termios raw = E.orig_termios;
 
 	// Disable flags to enable raw mode
 	raw.c_iflag &= ~(IXON | ICRNL | BRKINT | INPCK | ISTRIP);
